@@ -1,21 +1,22 @@
 import React, { useRef, useEffect } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { Message } from '../../types/chat';
+import { Message, MessageFeedback } from '../../types/chat';
 import { MessageItem } from '../messages/MessageItem';
 import { RecommendationCarousel } from '../recommendations/RecommendationCarousel';
+import { FeedbackRow } from './FeedbackRow';
 
 interface ChatTimelineProps {
   messages: Message[];
   onLongPressMessage?: (message: Message) => void;
-  renderFeedback?: (message: Message) => React.ReactNode;
   onRetryMessage?: (messageId: string) => void;
+  onFeedback?: (messageId: string, feedback: MessageFeedback) => void;
 }
 
 export const ChatTimeline: React.FC<ChatTimelineProps> = ({
   messages,
   onLongPressMessage,
-  renderFeedback,
   onRetryMessage,
+  onFeedback,
 }) => {
   const flatListRef = useRef<FlatList<Message>>(null);
 
@@ -42,7 +43,12 @@ export const ChatTimeline: React.FC<ChatTimelineProps> = ({
             renderRecommendations={(msg) => (
               <RecommendationCarousel recommendations={msg.recommendations} />
             )}
-            renderFeedback={renderFeedback}
+            renderFeedback={(msg) => (
+              <FeedbackRow
+                feedback={msg.feedback}
+                onSelectFeedback={(fb) => onFeedback && onFeedback(msg.id, fb)}
+              />
+            )}
             onRetry={onRetryMessage}
           />
         )}
