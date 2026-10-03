@@ -8,6 +8,7 @@ interface MessageBubbleProps {
   onLongPress?: (message: Message) => void;
   renderRecommendations?: (message: Message) => React.ReactNode;
   renderFeedback?: (message: Message) => React.ReactNode;
+  onRetry?: (messageId: string) => void;
 }
 
 export const MessageItem: React.FC<MessageBubbleProps> = ({
@@ -15,6 +16,7 @@ export const MessageItem: React.FC<MessageBubbleProps> = ({
   onLongPress,
   renderRecommendations,
   renderFeedback,
+  onRetry,
 }) => {
   if (message.type === 'system') {
     return (
@@ -93,15 +95,23 @@ export const MessageItem: React.FC<MessageBubbleProps> = ({
         {/* Message Delivery Status for User */}
         {isUser && message.status && (
           <View style={styles.statusRow}>
-            <Text style={styles.statusText}>
-              {message.status === 'sending'
-                ? 'Sending...'
-                : message.status === 'sent'
-                ? 'Sent'
-                : 'Failed'}
-            </Text>
-            {message.status === 'sent' && (
-              <Ionicons name="checkmark-done" size={14} color="#D1D5DB" />
+            {message.status === 'failed' ? (
+              <Pressable
+                onPress={() => onRetry && onRetry(message.id)}
+                style={styles.retryBadge}
+              >
+                <Text style={styles.retryText}>Failed • Tap to Retry</Text>
+                <Ionicons name="refresh" size={12} color="#EF4444" />
+              </Pressable>
+            ) : (
+              <>
+                <Text style={styles.statusText}>
+                  {message.status === 'sending' ? 'Sending...' : 'Sent'}
+                </Text>
+                {message.status === 'sent' && (
+                  <Ionicons name="checkmark-done" size={13} color="#E0E7FF" />
+                )}
+              </>
             )}
           </View>
         )}
@@ -229,5 +239,19 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 10,
     color: '#E0E7FF',
+  },
+  retryBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEE2E2',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    gap: 4,
+  },
+  retryText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#DC2626',
   },
 });
