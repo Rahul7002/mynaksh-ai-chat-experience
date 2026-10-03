@@ -177,6 +177,8 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 4,
     borderWidth: 1,
     borderColor: '#E5E7EB',
+    maxWidth: '92%', // Gives space for carousel cards
+    width: '92%',
   },
   humanBubble: {
     backgroundColor: '#FFFBEB',

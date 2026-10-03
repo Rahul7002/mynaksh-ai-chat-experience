@@ -2,23 +2,21 @@ import React, { useRef, useEffect } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { Message } from '../../types/chat';
 import { MessageItem } from '../messages/MessageItem';
+import { RecommendationCarousel } from '../recommendations/RecommendationCarousel';
 
 interface ChatTimelineProps {
   messages: Message[];
   onLongPressMessage?: (message: Message) => void;
-  renderRecommendations?: (message: Message) => React.ReactNode;
   renderFeedback?: (message: Message) => React.ReactNode;
 }
 
 export const ChatTimeline: React.FC<ChatTimelineProps> = ({
   messages,
   onLongPressMessage,
-  renderRecommendations,
   renderFeedback,
 }) => {
   const flatListRef = useRef<FlatList<Message>>(null);
 
-  // Auto-scroll to latest message on messages update
   useEffect(() => {
     if (messages.length > 0) {
       setTimeout(() => {
@@ -39,7 +37,9 @@ export const ChatTimeline: React.FC<ChatTimelineProps> = ({
           <MessageItem
             message={item}
             onLongPress={onLongPressMessage}
-            renderRecommendations={renderRecommendations}
+            renderRecommendations={(msg) => (
+              <RecommendationCarousel recommendations={msg.recommendations} />
+            )}
             renderFeedback={renderFeedback}
           />
         )}
