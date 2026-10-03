@@ -8,12 +8,14 @@ interface ChatTimelineProps {
   messages: Message[];
   onLongPressMessage?: (message: Message) => void;
   renderFeedback?: (message: Message) => React.ReactNode;
+  onRetryMessage?: (messageId: string) => void;
 }
 
 export const ChatTimeline: React.FC<ChatTimelineProps> = ({
   messages,
   onLongPressMessage,
   renderFeedback,
+  onRetryMessage,
 }) => {
   const flatListRef = useRef<FlatList<Message>>(null);
 
@@ -41,6 +43,7 @@ export const ChatTimeline: React.FC<ChatTimelineProps> = ({
               <RecommendationCarousel recommendations={msg.recommendations} />
             )}
             renderFeedback={renderFeedback}
+            onRetry={onRetryMessage}
           />
         )}
       />
