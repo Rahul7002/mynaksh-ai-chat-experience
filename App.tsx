@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
 import { StatusBar } from 'expo-status-bar';
@@ -41,73 +49,66 @@ export default function App() {
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
         <StatusBar style="dark" />
 
-        {/* Top Header */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.headerTitle}>MyNaksh AI Astrologer</Text>
-            <Text style={styles.headerSubtitle}>Saturn & Transit Guidance Active</Text>
+        {/* Screen-level KeyboardAvoidingView */}
+        <KeyboardAvoidingView
+          style={styles.keyboardAvoid}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        >
+          {/* Top Header */}
+          <View style={styles.header}>
+            <View>
+              <Text style={styles.headerTitle}>MyNaksh AI Astrologer</Text>
+              <Text style={styles.headerSubtitle}>Saturn & Transit Guidance Active</Text>
+            </View>
+            <View style={styles.headerControls}>
+              <TouchableOpacity onPress={simulateLoading} style={styles.demoBtn}>
+                <Ionicons name="refresh-circle" size={24} color="#6366F1" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={simulateError} style={styles.demoBtn}>
+                <Ionicons name="alert-circle" size={24} color="#EF4444" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={clearChat} style={styles.demoBtn}>
+                <Ionicons name="trash" size={20} color="#9CA3AF" />
+              </TouchableOpacity>
+            </View>
           </View>
-          {/* Quick Demo Controls */}
-          <View style={styles.headerControls}>
-            <TouchableOpacity
-              onPress={simulateLoading}
-              style={styles.demoBtn}
-              accessibilityLabel="Test Loading State"
-            >
-              <Ionicons name="refresh-circle" size={24} color="#6366F1" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={simulateError}
-              style={styles.demoBtn}
-              accessibilityLabel="Test Error State"
-            >
-              <Ionicons name="alert-circle" size={24} color="#EF4444" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={clearChat}
-              style={styles.demoBtn}
-              accessibilityLabel="Test Empty State"
-            >
-              <Ionicons name="trash" size={20} color="#9CA3AF" />
-            </TouchableOpacity>
+
+          {/* Chat Content */}
+          <View style={styles.inner}>
+            {isLoading ? (
+              <LoadingState />
+            ) : error ? (
+              <ErrorState onRetry={loadInitialMessages} error={error} />
+            ) : messages.length === 0 ? (
+              <EmptyState onStartSuggested={(text) => sendMessage(text)} />
+            ) : (
+              <ChatTimeline
+                messages={messages}
+                onLongPressMessage={(msg) => setActiveMessage(msg)}
+                onRetryMessage={retryMessage}
+                onFeedback={(id, fb) => setMessageFeedback(id, fb)}
+              />
+            )}
+
+            {!isLoading && !error && (
+              <MessageComposer
+                onSendMessage={sendMessage}
+                replyingTo={replyingTo}
+                onCancelReply={() => setReplyingTo(null)}
+              />
+            )}
+
+            <MessageActionsModal
+              visible={!!activeMessage}
+              message={activeMessage}
+              onClose={() => setActiveMessage(null)}
+              onReply={(msg) => setReplyingTo(msg)}
+              onCopy={handleCopy}
+              onDelete={(id) => deleteMessage(id)}
+            />
           </View>
-        </View>
-
-        {/* Content based on state */}
-        <View style={styles.inner}>
-          {isLoading ? (
-            <LoadingState />
-          ) : error ? (
-            <ErrorState onRetry={loadInitialMessages} error={error} />
-          ) : messages.length === 0 ? (
-            <EmptyState onStartSuggested={(text) => sendMessage(text)} />
-          ) : (
-            <ChatTimeline
-              messages={messages}
-              onLongPressMessage={(msg) => setActiveMessage(msg)}
-              onRetryMessage={retryMessage}
-              onFeedback={(id, fb) => setMessageFeedback(id, fb)}
-            />
-          )}
-
-          {/* Composer is mounted when not in fatal error/loading */}
-          {!isLoading && !error && (
-            <MessageComposer
-              onSendMessage={sendMessage}
-              replyingTo={replyingTo}
-              onCancelReply={() => setReplyingTo(null)}
-            />
-          )}
-
-          <MessageActionsModal
-            visible={!!activeMessage}
-            message={activeMessage}
-            onClose={() => setActiveMessage(null)}
-            onReply={(msg) => setReplyingTo(msg)}
-            onCopy={handleCopy}
-            onDelete={(id) => deleteMessage(id)}
-          />
-        </View>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -117,6 +118,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+  },
+  keyboardAvoid: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',

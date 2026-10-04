@@ -5,8 +5,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Text,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Message } from '../../types/chat';
@@ -32,10 +30,7 @@ export const MessageComposer: React.FC<Props> = ({
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
-    >
+    <View style={styles.composerWrapper}>
       {/* Reply Preview Bar */}
       {replyingTo && (
         <View style={styles.replyPreviewBar}>
@@ -80,11 +75,14 @@ export const MessageComposer: React.FC<Props> = ({
           />
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  composerWrapper: {
+    backgroundColor: '#FFFFFF',
+  },
   replyPreviewBar: {
     flexDirection: 'row',
     alignItems: 'center',
