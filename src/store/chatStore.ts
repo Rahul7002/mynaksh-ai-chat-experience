@@ -15,14 +15,34 @@ interface ChatStore {
   updateMessageStatus: (messageId: string, status: MessageStatus) => void;
   setMessageFeedback: (messageId: string, feedback: MessageFeedback) => void;
   sendMessage: (text: string) => void;
-  retryMessage: (messageId: string) => void;
+  retryMessage: (messageId: string) => void;// Simulation Helpers for Evaluators
+  simulateLoading: () => void;
+  simulateError: () => void;
+  clearChat: () => void;
 }
+
+
 
 export const useChatStore = create<ChatStore>((set, get) => ({
   messages: INITIAL_MOCK_CONVERSATION,
   isLoading: false,
   error: null,
   replyingTo: null,
+
+  simulateLoading: () => {
+    set({ isLoading: true });
+    setTimeout(() => {
+      set({ isLoading: false, messages: INITIAL_MOCK_CONVERSATION, error: null });
+    }, 1500);
+  },
+
+  simulateError: () => {
+    set({ error: 'Network request timed out. Please try again.', isLoading: false });
+  },
+
+  clearChat: () => {
+    set({ messages: [] });
+  },
 
   loadInitialMessages: () => {
     set({ isLoading: true, error: null });
